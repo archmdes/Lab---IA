@@ -4,8 +4,8 @@ module cnn_dense_unit (
     
     // Dados vindo dos seus arquivos .mif e do Pooling
     input signed [7:0] data_in,    // Dado da Max-Pooling
-  input signed [7:0] weight_in,  // Peso vindo da SRAM
-  input signed [7:0] bias_in,    // Bias vindo da SRAM
+    input signed [7:0] weight_in,  // Peso vindo da SRAM
+    input signed [7:0] bias_in,    // Bias vindo da SRAM
     
     // Sinais de controle vindos da FSM da outra equipe
     input en_acc,                  // Habilita a acumulação (Multiplica e Soma)
