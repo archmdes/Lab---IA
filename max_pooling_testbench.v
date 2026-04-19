@@ -7,7 +7,8 @@ module testbench_pooling;
     reg [15:0] COL2 [0:899];
     reg [15:0] COL3 [0:899];
     reg [15:0] COL4 [0:899];
-
+    // lidando com os restos
+    reg [15:0] resto1, resto2, resto3, resto4;
     integer infile, outfile;
     integer i, b, k, idx;
 
@@ -17,6 +18,16 @@ module testbench_pooling;
     max_pooling U2 (.vector_4x4(V2), .y_out(Y2));
     max_pooling U3 (.vector_4x4(V3), .y_out(Y3));
     max_pooling U4 (.vector_4x4(V4), .y_out(Y4));
+
+    function [15:0] pooling; //duplicação da função pooling do disegn para conseguir lidar com os resto
+        input [15:0] a,b,c,d;
+        reg [15:0] m1,m2;
+        begin
+            m1 = (a>b)?a:b;
+            m2 = (c>d)?c:d;
+            pooling = (m1>m2)?m1:m2;
+        end
+    endfunction
 
     initial begin
         // abertura dos arquivos txt de entrada de saida
@@ -64,6 +75,14 @@ module testbench_pooling;
             end
 
         end
+
+        // lidando com os 4 valores que faltam serem lidos da entrada
+        resto1 = pooling(COL1[896], COL1[897], COL1[898], COL1[899]);
+        resto2 = pooling(COL2[896], COL2[897], COL2[898], COL2[899]);
+        resto3 = pooling(COL3[896], COL3[897], COL3[898], COL3[899]);
+        resto4 = pooling(COL4[896], COL4[897], COL4[898], COL4[899]);
+
+        $fwrite(outfile, "%h %h %h %h\n", resto1, resto2, resto3, resto4);
 
         $fclose(infile);
         $fclose(outfile);
