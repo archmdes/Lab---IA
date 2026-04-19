@@ -1,7 +1,7 @@
 module testbench_pooling;
 
     reg  [255:0] V1, V2, V3, V4;
-    wire [143:0] Y1, Y2, Y3, Y4;
+    wire [63:0] Y1, Y2, Y3, Y4;
     // vetores de entrada
     reg [15:0] COL1 [0:899];
     reg [15:0] COL2 [0:899];
@@ -54,8 +54,8 @@ module testbench_pooling;
 
             #10; 
 
-            // escreve as 4 colunas de saida (9 de 16 bits cada)
-            for (k=0; k<9; k=k+1) begin
+            // escreve as 4 colunas de saida (4 de 16 bits cada)
+            for (k=0; k<4; k=k+1) begin
                 $fwrite(outfile,"%h %h %h %h\n",
                     Y1[(k+1)*16-1 -: 16],
                     Y2[(k+1)*16-1 -: 16],
