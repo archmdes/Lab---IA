@@ -1,1 +1,1 @@
-There is a project with educational purpose.
+Segundo artefato entregue no trabalho de Laboratório Integrado 1 - A. O "explicacao.txt" contém maiores detalhes do funcionamento dessa entrega.
