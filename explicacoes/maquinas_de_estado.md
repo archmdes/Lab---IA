@@ -67,6 +67,27 @@ stateDiagram-v2
     ST_DONE --> ST_IDLE : access_done pulsado
 ```
 
+**Visão de Hardware (Estados em Binário):**
+
+```mermaid
+stateDiagram-v2
+    [*] --> 000_IDLE
+
+    000_IDLE --> 001_RX_FACE : uart_valid && uart_data == 0xFF
+    000_IDLE --> 010_RX_VIDEO : uart_valid && uart_data != 0xFF
+    000_IDLE --> 011_READ : start_system_int && frame_ready && weights_boot_done
+
+    001_RX_FACE --> 000_IDLE : uart_frame_pending == 1
+
+    010_RX_VIDEO --> 000_IDLE : uart_wr_addr == 16383
+
+    011_READ --> 100_WAIT : rd_val_count == 1024
+
+    100_WAIT --> 101_DONE : argmax_valid == 1
+
+    101_DONE --> 000_IDLE : (incondicional no próx. clock)
+```
+
 **Tabela de transições:**
 
 | Estado atual | Condição | Próximo estado | Ação |
@@ -131,6 +152,7 @@ stateDiagram-v2
 | Nenhum | Mantém valor atual | — |
 
 **Determinação da cor do sprite:** O sinal `access_granted = (display_class_id > 1)` é usado para selecionar a cor do texto:
+
 - `access_granted = 1` → texto verde (pessoa reconhecida)
 - `access_granted = 0` → texto vermelho (desconhecido ou vazio)
 
@@ -214,6 +236,7 @@ stateDiagram-v2
 | grace | 2.5s decorridos | detecting | Envia apenas vídeo 128×128 durante grace |
 
 **Justificativa dos temporizadores:**
+
 - **Cooldown (2.5s):** Garante que a FPGA tenha tempo para concluir a inferência e exibir o resultado no VGA antes de receber um novo rosto.
 - **Grace period (2.5s):** Evita que o mesmo rosto seja reenviado imediatamente após o cooldown, forçando um intervalo mínimo de apenas vídeo.
 
