@@ -33,8 +33,6 @@
 //
 // Saídas:
 //   - class_id [4:0]: 0 = Vazio; 1 = Desconhecido; 2..19 = pessoa identificada
-//   - unknown: 1 quando a rede prediz a classe "Desconhecido" (índice 0)
-//   - max_score: valor Q6.10 do maior score encontrado
 // ==============================================================================
 module argmax_19 (
     input  wire        clk,
@@ -42,9 +40,7 @@ module argmax_19 (
     input  wire        valid_in,
     input  wire signed [15:0] scores [0:18],
     output reg         valid_out,
-    output reg  [4:0]  class_id,   // 0 = Vazio; 1 = Desconhecido; 2..19 = pessoa identificada
-    output reg         unknown,
-    output reg  signed [15:0] max_score
+    output reg  [4:0]  class_id    // 0 = Vazio; 1 = Desconhecido; 2..19 = pessoa identificada
 );
 
     reg signed [15:0] max_val;
@@ -60,8 +56,6 @@ module argmax_19 (
         if (rst) begin
             valid_out   <= 1'b0;
             class_id    <= 5'd0; // Inicializa como Vazio
-            unknown     <= 1'b0;
-            max_score   <= 16'sd0;
             max_val     <= 16'sd0;
             max_idx     <= 5'd0;
             current_idx <= 5'd0;
@@ -93,12 +87,7 @@ module argmax_19 (
                 end
 
                 DONE: begin
-                    max_score <= max_val;
                     class_id  <= max_idx + 5'd1;
-                    
-                    // Desconhecido: a rede nativa treinou a classe 0 como "Desconhecido"
-                    // Não há threshold — a decisão é puramente pelo argmax
-                    unknown <= (max_idx == 5'd0) ? 1'b1 : 1'b0;
                     
                     valid_out <= 1'b1;
                     state     <= IDLE;

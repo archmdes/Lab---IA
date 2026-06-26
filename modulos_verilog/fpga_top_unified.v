@@ -63,13 +63,9 @@ module fpga_top_unified (
     wire pll_locked;
 
     // --- Saídas do cnn_top ---
-    wire [15:0] final_result;
     wire [4:0]  class_id;           // 0 = Vazio; 1 = Desconhecido; 2–19 = pessoa
-    wire        unknown;
     wire        access_done;
     wire        frame_ready;
-    wire        debug_weights_nonzero;
-    wire        debug_frame_nonzero;
     wire        frame_mode;         // 0 = vídeo (128×128), 1 = rosto (32×32)
 
     // --- Portas de escrita do video framebuffer (geradas pelo cnn_top) ---
@@ -78,11 +74,11 @@ module fpga_top_unified (
     wire [7:0]  video_fb_wr_data;
 
     // --- Porta VGA do framebuffer 32×32 (dentro do cnn_top) ---
-    wire [7:0]  vga_rd_data;        // Pixel lido do framebuffer 32×32
+    (* keep = 1 *) wire [7:0]  vga_rd_data;        // Pixel lido do framebuffer 32×32
     reg  [9:0]  vga_rd_addr;        // Endereço de leitura VGA (32×32 = 10 bits)
 
     // --- Porta VGA do framebuffer 128×128 ---
-    wire [7:0]  video_vga_rd_data;  // Pixel lido do framebuffer 128×128
+    (* keep = 1 *) wire [7:0]  video_vga_rd_data;  // Pixel lido do framebuffer 128×128
     reg  [13:0] video_vga_rd_addr;  // Endereço de leitura VGA (128×128 = 14 bits)
 
     // --- Modo de exibição VGA (latched no domínio 25 MHz) ---
@@ -159,14 +155,6 @@ module fpga_top_unified (
         // UART — conectado ao pino físico
         .rx_pin        (UART_RXD),
 
-        // Start manual desabilitado — inferência é 100% automática via UART
-        .start_system  (1'b0),
-
-        // Portas de escrita externa (não usadas — UART interna ao cnn_top)
-        .fb_wr_en      (1'b0),
-        .fb_wr_addr    (10'd0),
-        .fb_wr_data    (8'd0),
-
         // Portas VGA do framebuffer 32×32 — conectadas ao barramento VGA
         .vga_rd_en     (1'b1),              // Leitura contínua habilitada
         .vga_rd_addr   (vga_rd_addr),       // Endereço gerado pela lógica VGA
@@ -181,13 +169,9 @@ module fpga_top_unified (
         .frame_mode    (frame_mode),
 
         // Saídas de resultado
-        .final_result  (final_result),
         .class_id      (class_id),
-        .unknown       (unknown),
         .access_done   (access_done),
-        .frame_ready   (frame_ready),
-        .debug_weights_nonzero (debug_weights_nonzero),
-        .debug_frame_nonzero   (debug_frame_nonzero)
+        .frame_ready   (frame_ready)
     );
 
     // =========================================================================

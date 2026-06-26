@@ -108,7 +108,6 @@ O sinal `rx_pin` passa por dois flip-flops de sincronização (`rx_sync_1`, `rx_
 | Sinal | Descrição |
 |-------|-----------|
 | `class_id[4:0]` | Classe predita (0=Vazio, 1=Desconhecido, 2–19=pessoa) |
-| `unknown` | Ativo quando `class_id == 1` |
 | `access_done` | Pulso de 1 ciclo indicando fim da inferência |
 | `frame_ready` | Ativo quando o framebuffer 32×32 está completo |
 | `frame_mode` | 0=vídeo (128×128), 1=rosto (32×32) |
@@ -354,8 +353,6 @@ Não há limiar de confiança. A decisão é puramente pelo argmax: a classe com
 | Sinal | Descrição |
 |-------|-----------|
 | `class_id[4:0]` | Classe predita (0=Vazio, 1=Desconhecido, 2–19=pessoa) |
-| `unknown` | 1 quando a rede prediz a classe 0 (Desconhecido) |
-| `max_score[15:0]` | Valor do maior score encontrado (Q6.10) |
 
 ---
 

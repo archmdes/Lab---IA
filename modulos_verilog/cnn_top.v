@@ -20,19 +20,6 @@ module cnn_top (
     // [PONTO DE INTEGRAÇÃO - UART]
     // RX serial vindo do conversor USB/TTL.
     input wire rx_pin,
-    // [SINAL DE CONTROLE EXTERNO]
-    // O sinal de início será acionado por um handshake via UART ou registrador de comando.
-    input wire start_system,
-
-    // [PONTO DE INTEGRAÇÃO - UART]
-    // O módulo Controlador UART deverá ser conectado nessas três portas abaixo.
-    // O script em Python enviará os bytes da imagem serialmente, a FSM da UART
-    // agrupará em 8 bits e ativará o `fb_wr_en`, incrementando o `fb_wr_addr`
-    // a cada ciclo de escrita válido. Atingindo o limite, a inferência dispara.
-    input wire fb_wr_en,
-    input wire [9:0] fb_wr_addr,
-    input wire [7:0] fb_wr_data,
-
     // [PONTO DE INTEGRAÇÃO - VGA E SRAM EXTERNA]
     // A varredura de exibição de vídeo se conectará aqui (framebuffer 32×32).
     input wire vga_rd_en,
@@ -50,13 +37,9 @@ module cnn_top (
     // 0 = vídeo (128×128, apenas VGA), 1 = rosto (32×32, inferência CNN)
     output reg         frame_mode,
 
-    output wire [15:0] final_result,
     output wire [4:0]  class_id,       // 0 = Vazio; 1 = Desconhecido; 2-19 = pessoa identificada
-    output wire        unknown,        // 1 quando class_id == 1 (rede prediz desconhecido)
     output reg         access_done,
-    output wire        frame_ready,
-    output wire        debug_weights_nonzero,
-    output wire        debug_frame_nonzero
+    output wire        frame_ready
 );
 
     // UART RX sincronizado para o clock interno
@@ -75,10 +58,7 @@ module cnn_top (
     // Só ativo quando estamos recebendo um frame de rosto (mode=1)
     wire uart_wr_en_comb;
 
-    wire fb_wr_en_int;
-    wire [9:0] fb_wr_addr_int;
-    wire [7:0] fb_wr_data_int;
-    wire start_system_int;
+
 
     wire [7:0] fb_rd_data;
     reg [9:0] fb_rd_addr;
@@ -129,7 +109,7 @@ module cnn_top (
 
     reg [10:0] rd_req_count;
     reg [10:0] rd_val_count;
-    reg [7:0] debug_or_acc;
+
 
     // Maquina de estados (FSM) principal para controle do pipeline
     // ST_IDLE     → aguarda byte de controle via UART
@@ -150,13 +130,7 @@ module cnn_top (
     // Escrita no framebuffer 32×32: só quando recebendo frame de rosto
     assign uart_wr_en_comb = uart_valid && (state == ST_RX_FACE);
 
-    assign debug_weights_nonzero = |{conv_b0, conv_b1, conv_b2, conv_b3,
-                                    dense_b[ 0], dense_b[ 1], dense_b[ 2], dense_b[ 3],
-                                    dense_b[ 4], dense_b[ 5], dense_b[ 6], dense_b[ 7],
-                                    dense_b[ 8], dense_b[ 9], dense_b[10], dense_b[11],
-                                    dense_b[12], dense_b[13], dense_b[14], dense_b[15],
-                                    dense_b[16], dense_b[17], dense_b[18]};
-    assign debug_frame_nonzero = |debug_or_acc;
+
 
     // UART RX: converte serial em byte + pulso de dado valido
     uart_rx uart_rx_inst (
@@ -167,10 +141,7 @@ module cnn_top (
         .data_valid(uart_valid)
     );
 
-    assign fb_wr_en_int    = uart_wr_en_comb | fb_wr_en;
-    assign fb_wr_addr_int  = uart_wr_en_comb ? uart_wr_addr[9:0] : fb_wr_addr;
-    assign fb_wr_data_int  = uart_wr_en_comb ? uart_data    : fb_wr_data;
-    assign start_system_int = start_system | uart_start_pulse;
+
 
     // =========================================================================
     // Instanciação e Interconexão dos Componentes do Hardware CNN
@@ -180,9 +151,9 @@ module cnn_top (
     framebuffer_32x32 framebuffer_inst (
         .clk(clk),
         .rst(rst),
-        .wr_en(fb_wr_en_int),
-        .wr_addr(fb_wr_addr_int),
-        .wr_data(fb_wr_data_int),
+        .wr_en(uart_wr_en_comb),
+        .wr_addr(uart_wr_addr[9:0]),
+        .wr_data(uart_data),
         .rd_en(fb_rd_en),
         .rd_addr(fb_rd_addr),
         .rd_data(fb_rd_data),
@@ -288,9 +259,7 @@ module cnn_top (
         .valid_in(dense_valid),
         .scores(dense_scores),
         .valid_out(argmax_valid),
-        .class_id(class_id),
-        .unknown(unknown),
-        .max_score(final_result)
+        .class_id(class_id)
     );
 
     always @(posedge clk or posedge rst) begin
@@ -308,7 +277,7 @@ module cnn_top (
             rd_req_count       <= 11'd0;
             rd_val_count       <= 11'd0;
             dense_addr         <= 14'd0;
-            debug_or_acc       <= 8'd0;
+
             access_done        <= 1'b0;
             frame_clear        <= 1'b0;
             flat_valid_d       <= 1'b0;
@@ -346,7 +315,7 @@ module cnn_top (
 
             if (frame_clear) begin
                 uart_wr_addr <= 14'd0;
-                debug_or_acc <= 8'd0;
+
             end
 
             if (flat_valid) begin
@@ -359,7 +328,7 @@ module cnn_top (
 
             if (fb_rd_en_d && rd_val_count < 11'd1024) begin
                 rd_val_count <= rd_val_count + 11'd1;
-                debug_or_acc <= debug_or_acc | fb_rd_data;
+
             end
 
             case (state)
@@ -373,7 +342,7 @@ module cnn_top (
                     rd_val_count <= 11'd0;
 
                     // Verificar se há frame de rosto pendente para inferência
-                    if (start_system_int && frame_ready && weights_boot_done) begin
+                    if (uart_start_pulse && frame_ready && weights_boot_done) begin
                         state       <= ST_READ;
                         frame_clear <= 1'b1;
                         dense_addr  <= 14'd0;

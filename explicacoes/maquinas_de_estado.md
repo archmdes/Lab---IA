@@ -54,7 +54,7 @@ stateDiagram-v2
 
     ST_IDLE --> ST_RX_FACE : uart_valid e uart_data == 0xFF
     ST_IDLE --> ST_RX_VIDEO : uart_valid e uart_data != 0xFF
-    ST_IDLE --> ST_READ : start_system_int e frame_ready e weights_boot_done
+    ST_IDLE --> ST_READ : uart_start_pulse e frame_ready e weights_boot_done
 
     ST_RX_FACE --> ST_IDLE : uart_frame_pending (1024 bytes recebidos)
 
@@ -75,7 +75,7 @@ stateDiagram-v2
 
     000_IDLE --> 001_RX_FACE : uart_valid && uart_data == 0xFF
     000_IDLE --> 010_RX_VIDEO : uart_valid && uart_data != 0xFF
-    000_IDLE --> 011_READ : start_system_int && frame_ready && weights_boot_done
+    000_IDLE --> 011_READ : uart_start_pulse && frame_ready && weights_boot_done
 
     001_RX_FACE --> 000_IDLE : uart_frame_pending == 1
 
@@ -94,7 +94,7 @@ stateDiagram-v2
 |-------------|----------|---------------|------|
 | ST_IDLE | `uart_valid` e `uart_data == 0xFF` | ST_RX_FACE | Entra no modo de recepção de Rosto |
 | ST_IDLE | `uart_valid` e `uart_data != 0xFF` | ST_RX_VIDEO | Entra no modo de recepção de Vídeo |
-| ST_IDLE | `start_system_int` e `frame_ready` e `weights_boot_done` | ST_READ | Inicia leitura do framebuffer 32×32 |
+| ST_IDLE | `uart_start_pulse` e `frame_ready` e `weights_boot_done` | ST_READ | Inicia leitura do framebuffer 32×32 |
 | ST_RX_FACE | `uart_frame_pending` | ST_IDLE | `frame_mode <= 1`, frame de rosto completo |
 | ST_RX_VIDEO | `uart_wr_addr == 16383` | ST_IDLE | `frame_mode <= 0`, frame de vídeo completo |
 | ST_READ | `rd_val_count == 1024` | ST_WAIT | Todos os pixels lidos e enviados ao pipeline |
@@ -123,23 +123,14 @@ stateDiagram-v2
         leds_off: LEDs apagados
     }
 
-    state RECEBENDO {
-        display_class_id_eq_0_2: display_class_id = 0
-        sprite_vazio_2: Sprite continua "Vazio"
-        leds_off_2: LEDs apagados
-    }
-
     state RESULTADO {
         display_class_id_capturado: display_class_id = class_id da CNN
-        sprite_nome: Sprite exibe nome (verde) ou "Desconhecido" (vermelho)
-        leds_on: LEDG[0] se aprovado, LEDR[0] se desconhecido
+        sprite_nome: Sprite exibe nome ou "Desconhecido"
+        leds_on: LEDG[0] aprovado, LEDR[0] desconhecido
     }
 
-    VAZIO --> RECEBENDO : UART começa a receber frame
-    RECEBENDO --> VAZIO : frame_ready (novo frame completo)
-    RECEBENDO --> RESULTADO : access_done (inferência concluída)
-    RESULTADO --> RECEBENDO : frame_ready (próximo frame inicia)
-    RESULTADO --> VAZIO : Reset
+    VAZIO --> RESULTADO : access_done == 1 (inferência concluída)
+    RESULTADO --> VAZIO : frame_ready == 1 (novo rosto) ou frame_mode == 0 (volta p/ vídeo) ou Reset
 ```
 
 **Regras do registrador `display_class_id`:**
