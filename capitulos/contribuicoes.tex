@@ -1,34 +1,65 @@
-\chapter{Contribuições}% Definição do comando de rotação para simplificar o código da tabela
-\newcommand{\rot}[1]{\rotatebox{90}{\quad #1 \quad}}
+\small 
+\renewcommand{\arraystretch}{1.4} 
+\chapter{Contribuições Individuais}
 
-\begin{table}[htbp]
-\centering
-\caption{Síntese de Contribuições Individuais}
-\label{tab:contribuicoes_minimalista}
-\small
-\begin{tabular}{l p{10cm}}
+\begin{xltabular}{\textwidth}{l X}
+\caption{Contribuições Individuais} \label{tab:contribuicoes_longa} \\
+\toprule
+\textbf{Integrante} & \textbf{Atividades Realizadas} \\
+\midrule
+\endfirsthead
+
+\multicolumn{2}{c}{\textit{Continuação da Tabela \ref{tab:contribuicoes_longa}}} \\
 \toprule
 \textbf{Integrante} & \textbf{Atividades Principais} \\
 \midrule
-Anna Carolina & Treinamento Offline \\
-Bruno Alves & Aquisição \textbullet{} Hardware \textbullet{} Visão e Comunicação \\
-Diego Alves & Pré-processamento \textbullet{} Convolução \textbullet{} Temporização \textbullet{} Integração e Validação \\
-Eduardo Fontes & Aquisição \textbullet{} Treinamento Offline \\
-Fábio Alves & Módulo VGA \textbullet{} Sprite Nomes \textbullet{} Visão/Comunicação \textbullet{} Hardware \textbullet{} Integração e Validação \\
-Felipe Cunha & Aquisição \textbullet{} Treinamento Offline \\
-Gabriel Wolfovitch & Aquisição \textbullet{} Treinamento Offline \textbullet{} Hardware \textbullet{} Visão/Comunicação \textbullet{} Integração/Validação \\
-Hugo Souza & Aquisição \textbullet{} Treinamento Offline \\
-Igor Giovanni & Módulo UART \textbullet{} Hardware (PC/FPGA) \textbullet{} Comunicação e Validação \\
-João Pedro & Aquisição \textbullet{} Treinamento Offline \\
-José Henrique & Integração e Validação \\
-Julia Borges & Hardware \textbullet{} Integração e Validação \\
-Lúcio Teixeira & Integração e Validação \\
-Naira Beatriz & Visão e Comunicação \\
-Rafael Falcão & Hardware \textbullet{} Integração e Validação \\
-Rodrigo Horácio & Hardware \textbullet{} Integração e Validação \\
-Samuel Ferreira & Aquisição \textbullet{} Hardware \\
-Yuri Damasceno & Hardware \\
-Luiz Carlos & Compensação de latência (Módulo VGA) \\
+\endhead
+
+% Rodapé para as páginas intermédias (indica que continua)
+\midrule
+\multicolumn{2}{r}{\textit{Continua na próxima página}} \\
+\endfoot
+
+% Rodapé definitivo para a última página da tabela
 \bottomrule
-\end{tabular}
-\end{table}
+\endlastfoot
+
+Anna Carolina & $\bullet$ Construção do \textit{Dataset} \\
+\midrule
+Bruno Alves & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Implementação e Validação) \\
+\midrule
+Diego Alves & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Implementação e Validação) \newline $\bullet$ Integração Final (Implementação e Validação) \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Eduardo Fontes & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Treinamento Offline (Implementação e Validação)\\
+\midrule
+Fábio Alves & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Sistema de Visão (Implementação e Validação) \newline $\bullet$ Integração Final (Implementação e Validação) \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Felipe Cunha & $\bullet$ Construção do \textit{Dataset} \\
+\midrule
+Gabriel Wolfovitch & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Validação) \newline $\bullet$ Integração Final (Implementação e Validação) \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Hugo Souza & $\bullet$ Construção do \textit{Dataset} \\
+\midrule
+Igor Giovanni & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Sistema de Comunicação (Implementação e Validação) \\
+\midrule
+João Pedro & $\bullet$ Construção do \textit{Dataset} \\
+\midrule
+José Henrique & $\bullet$ Construção do \textit{Dataset} \\
+\midrule
+Julia Borges & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Implementação) \newline $\bullet$ Integração Final (Implementação e Validação) \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Lúcio Teixeira & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Naira Beatriz & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Sistema de Visão (Implementação) \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Rafael Falcão & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Implementação) \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Rodrigo Horácio & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Implementação e Validação) \newline $\bullet$ Elaboração do Relatório \\
+\midrule
+Samuel Ferreira & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Implementação) \\
+\midrule
+Yuri Damasceno & $\bullet$ Construção do \textit{Dataset} \newline $\bullet$ Arquitetura RTL (Implementação) \\
+\midrule
+Luiz Carlos & $\bullet$ Sistema de Visão (Implementação) \\
+
+\end{xltabular}
